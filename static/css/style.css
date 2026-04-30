@@ -189,8 +189,12 @@ body {
 /* ─── Processing Overlay ─────────────────────────────────────────────────── */
 .processing-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0,0,0,0.7);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   z-index: 100;
   display: flex;
@@ -285,6 +289,8 @@ body {
   cursor: pointer;
   color: var(--text-muted);
   font-weight: 500;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
 }
 .detection-details p {
@@ -352,6 +358,8 @@ body {
   cursor: pointer;
   color: var(--text-muted);
   font-weight: 500;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   user-select: none;
 }
 .json-debug pre {

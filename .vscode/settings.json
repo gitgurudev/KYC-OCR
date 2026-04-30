@@ -1,0 +1,5 @@
+{
+  "css.validate": false,
+  "css.lint.unknownProperties": "ignore",
+  "css.lint.vendorPrefix": "ignore"
+}
