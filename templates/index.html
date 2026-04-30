@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KYC Document Scanner</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <div class="app">
+
+    <!-- ─── Header ─────────────────────────────────────────────────────── -->
+    <header class="header">
+      <div class="header-inner">
+        <div class="logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+          </svg>
+          <span>KYC OCR</span>
+        </div>
+        <p class="header-tagline">AI-powered Indian document scanner</p>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- ─── Upload Card ────────────────────────────────────────────────── -->
+      <section class="card upload-card" id="upload-section">
+        <h2 class="card-title">Upload Document</h2>
+        <p class="card-subtitle">
+          Supports Aadhaar, PAN, Passport, Voter ID, Driving Licence,
+          Ration Card, Utility Bills &amp; Bank Passbooks
+        </p>
+
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden />
+
+          <div class="drop-zone-inner" id="drop-idle">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <p class="drop-text"><strong>Drop your document here</strong><br>or <span class="link" id="browse-btn">browse files</span></p>
+            <p class="drop-hint">JPEG · PNG · WebP &nbsp;|&nbsp; Max 10 MB</p>
+          </div>
+
+          <div class="drop-zone-preview hidden" id="drop-preview">
+            <img id="preview-img" src="" alt="Document preview" />
+            <button class="remove-btn" id="remove-btn" title="Remove">✕</button>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" id="scan-btn" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          Scan Document
+        </button>
+      </section>
+
+      <!-- ─── Processing Overlay ────────────────────────────────────────── -->
+      <div class="processing-overlay hidden" id="processing">
+        <div class="spinner-box">
+          <div class="spinner"></div>
+          <div class="processing-steps" id="processing-steps">
+            <p class="step active" id="step-1">🔍 Preprocessing image...</p>
+            <p class="step" id="step-2">🧠 Detecting document type...</p>
+            <p class="step" id="step-3">📚 Retrieving schema (RAG)...</p>
+            <p class="step" id="step-4">✍️ Extracting fields...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Result Section ────────────────────────────────────────────── -->
+      <section class="card result-card hidden" id="result-section">
+
+        <div class="result-header">
+          <div class="doc-badge" id="doc-badge">
+            <span class="doc-type-icon" id="doc-icon">🪪</span>
+            <div>
+              <p class="doc-type-name" id="doc-name">—</p>
+              <p class="doc-type-meta" id="doc-meta">—</p>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn btn-outline btn-sm" id="copy-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="1"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+              </svg>
+              Copy JSON
+            </button>
+            <button class="btn btn-outline btn-sm" id="reset-btn">↺ Scan Another</button>
+          </div>
+        </div>
+
+        <!-- Confidence bar -->
+        <div class="confidence-bar-wrapper">
+          <div class="confidence-label">
+            <span>AI Confidence</span>
+            <span id="confidence-pct">—</span>
+          </div>
+          <div class="confidence-bar-track">
+            <div class="confidence-bar-fill" id="confidence-bar"></div>
+          </div>
+        </div>
+
+        <!-- Detection reason (collapsible) -->
+        <details class="detection-details">
+          <summary>Detection reasoning</summary>
+          <p id="detection-reason">—</p>
+        </details>
+
+        <!-- Dynamic form fields -->
+        <div class="form-grid" id="form-grid">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Raw JSON debug view -->
+        <details class="json-debug">
+          <summary>View raw JSON</summary>
+          <pre id="raw-json"></pre>
+        </details>
+      </section>
+
+      <!-- ─── Error Banner ──────────────────────────────────────────────── -->
+      <div class="error-banner hidden" id="error-banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="error-msg">Something went wrong.</span>
+        <button class="error-close" id="error-close">✕</button>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
