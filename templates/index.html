@@ -72,9 +72,8 @@
         </div>
       </div>
 
-      <!-- ─── Result Section ────────────────────────────────────────────── -->
-      <section class="card result-card hidden" id="result-section">
-
+      <!-- ─── Result Info (hidden until scan completes) ─────────────────── -->
+      <section class="card result-info hidden" id="result-info">
         <div class="result-header">
           <div class="doc-badge" id="doc-badge">
             <span class="doc-type-icon" id="doc-icon">🪪</span>
@@ -83,7 +82,6 @@
               <p class="doc-type-meta" id="doc-meta">—</p>
             </div>
           </div>
-
           <div class="result-actions">
             <button class="btn btn-outline btn-sm" id="copy-btn">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -95,7 +93,6 @@
           </div>
         </div>
 
-        <!-- Confidence bar -->
         <div class="confidence-bar-wrapper">
           <div class="confidence-label">
             <span>AI Confidence</span>
@@ -106,19 +103,31 @@
           </div>
         </div>
 
-        <!-- Detection reason (collapsible) -->
         <details class="detection-details">
           <summary>Detection reasoning</summary>
           <p id="detection-reason">—</p>
         </details>
+      </section>
 
-        <!-- Dynamic form fields -->
-        <div class="form-grid" id="form-grid">
-          <!-- Populated by JS -->
+      <!-- ─── Static Form Section (always visible) ─────────────────────── -->
+      <section class="card form-section" id="form-section">
+        <h2 class="card-title">Extracted Fields</h2>
+
+        <!-- Empty state (shown before scan) -->
+        <div class="form-empty-state" id="form-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18M9 21V9"/>
+            <path d="M13 13h4M13 16h2" stroke-linecap="round"/>
+          </svg>
+          <p>Upload a document above and click <strong>Scan Document</strong><br>to extract fields automatically</p>
         </div>
 
-        <!-- Raw JSON debug view -->
-        <details class="json-debug">
+        <!-- Form grid (populated by JS, hidden until scan) -->
+        <div class="form-grid hidden" id="form-grid"></div>
+
+        <!-- Raw JSON debug (hidden until scan) -->
+        <details class="json-debug hidden" id="json-debug-wrap">
           <summary>View raw JSON</summary>
           <pre id="raw-json"></pre>
         </details>

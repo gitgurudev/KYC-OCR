@@ -13,17 +13,20 @@ const scanBtn       = document.getElementById('scan-btn');
 const processing    = document.getElementById('processing');
 const steps         = [1, 2, 3, 4].map(n => document.getElementById(`step-${n}`));
 
-const resultSection = document.getElementById('result-section');
+const resultInfo    = document.getElementById('result-info');
 const docName       = document.getElementById('doc-name');
 const docMeta       = document.getElementById('doc-meta');
 const docIcon       = document.getElementById('doc-icon');
 const confidencePct = document.getElementById('confidence-pct');
 const confidenceBar = document.getElementById('confidence-bar');
 const detectionReason = document.getElementById('detection-reason');
-const formGrid      = document.getElementById('form-grid');
-const rawJson       = document.getElementById('raw-json');
 const copyBtn       = document.getElementById('copy-btn');
 const resetBtn      = document.getElementById('reset-btn');
+
+const formEmpty     = document.getElementById('form-empty');
+const formGrid      = document.getElementById('form-grid');
+const jsonDebugWrap = document.getElementById('json-debug-wrap');
+const rawJson       = document.getElementById('raw-json');
 
 const errorBanner   = document.getElementById('error-banner');
 const errorMsg      = document.getElementById('error-msg');
@@ -101,21 +104,19 @@ async function runScan() {
   if (!selectedFile) return;
 
   hideError();
-  resultSection.classList.add('hidden');
   showProcessing();
 
   const formData = new FormData();
   formData.append('file', selectedFile);
 
   try {
-    // Animate processing steps
-    await animateStep(0, 600);   // Preprocessing
-    await animateStep(1, 1000);  // Detecting
+    await animateStep(0, 600);
+    await animateStep(1, 1000);
 
     const response = await fetch('/api/ocr', { method: 'POST', body: formData });
 
-    await animateStep(2, 400);   // RAG schema
-    await animateStep(3, 200);   // Extracting
+    await animateStep(2, 400);
+    await animateStep(3, 200);
 
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
@@ -144,7 +145,6 @@ function hideProcessing() {
 
 function animateStep(index, delay) {
   return new Promise(resolve => {
-    // Mark previous steps done
     if (index > 0) {
       steps[index - 1].classList.remove('active');
       steps[index - 1].classList.add('done');
@@ -156,8 +156,8 @@ function animateStep(index, delay) {
 
 // ─── Render result ────────────────────────────────────────────────────────────
 function renderResult(data) {
-  const icon = DOC_ICONS[data.document_type] || '📄';
-  docIcon.textContent = icon;
+  // Doc info card
+  docIcon.textContent = DOC_ICONS[data.document_type] || '📄';
   docName.textContent = data.display_name || 'Unknown Document';
   docMeta.textContent = `RAG Match: ${(data.rag_similarity_score * 100).toFixed(0)}% · Category: ${data.schema?.category || '—'}`;
 
@@ -167,16 +167,16 @@ function renderResult(data) {
   confidenceBar.style.background = pct >= 80 ? 'linear-gradient(90deg,#22c55e,#16a34a)'
                                   : pct >= 50 ? 'linear-gradient(90deg,#f59e0b,#d97706)'
                                               : 'linear-gradient(90deg,#ef4444,#b91c1c)';
-
   detectionReason.textContent = data.detection_reason || '—';
+  resultInfo.classList.remove('hidden');
 
-  // Build form fields from schema + extracted values
+  // Build form fields
   formGrid.innerHTML = '';
-  const fields = data.schema?.fields || {};
+  const fields    = data.schema?.fields || {};
   const extracted = data.extracted_fields || {};
 
   Object.entries(fields).forEach(([key, info]) => {
-    const value = extracted[key] ?? '';
+    const value   = extracted[key] ?? '';
     const isEmpty = !value;
 
     const group = document.createElement('div');
@@ -194,7 +194,6 @@ function renderResult(data) {
       ta.id = `field-${key}`;
       ta.rows = 3;
       ta.value = value || 'Not detected';
-      ta.readOnly = false;
       group.appendChild(ta);
     } else {
       const input = document.createElement('input');
@@ -202,7 +201,6 @@ function renderResult(data) {
       input.className = 'field-input' + (isEmpty ? ' empty' : '');
       input.id = `field-${key}`;
       input.value = value || 'Not detected';
-      input.readOnly = false;
       group.appendChild(input);
     }
 
@@ -216,11 +214,16 @@ function renderResult(data) {
     formGrid.appendChild(group);
   });
 
+  // Show form, hide empty state
+  formEmpty.classList.add('hidden');
+  formGrid.classList.remove('hidden');
+
   // Show raw JSON
   rawJson.textContent = JSON.stringify(data, null, 2);
+  jsonDebugWrap.classList.remove('hidden');
 
-  resultSection.classList.remove('hidden');
-  resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Scroll to form section
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ─── Copy JSON ────────────────────────────────────────────────────────────────
@@ -242,8 +245,17 @@ copyBtn.addEventListener('click', async () => {
 // ─── Reset ────────────────────────────────────────────────────────────────────
 resetBtn.addEventListener('click', () => {
   clearFile();
-  resultSection.classList.add('hidden');
   lastResult = null;
+
+  // Hide result info
+  resultInfo.classList.add('hidden');
+
+  // Reset form section to empty state
+  formGrid.innerHTML = '';
+  formGrid.classList.add('hidden');
+  formEmpty.classList.remove('hidden');
+  jsonDebugWrap.classList.add('hidden');
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
